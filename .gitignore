@@ -1,2 +1,10 @@
-JavaCSV-Reloaded/bin
-*.class
+/.idea/libraries/
+/.idea/uiDesigner.xml
+/.idea/workspace.xml
+/bin/
+
+# OS files
+.DS_Store
+._.DS_Store
+
+*~

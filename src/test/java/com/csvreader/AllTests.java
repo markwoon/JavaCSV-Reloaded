@@ -1,4 +1,4 @@
-package test.com.csvreader;
+package com.csvreader;
 /*
  * Java CSV is a stream based library for reading and writing
  * CSV and other delimited data.
@@ -19,130 +19,16 @@ package test.com.csvreader;
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-
-import main.com.csvreader.CsvReader;
-import main.com.csvreader.CsvWriter;
-
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AllTests {
-	public static void main(String[] args) throws Exception {
-		Class<AllTests> testClass = AllTests.class;
-		ArrayList<Method> setups = new ArrayList<Method>();
-		ArrayList<Method> tearDowns = new ArrayList<Method>();
-
-		for (Method method : testClass.getDeclaredMethods()) {
-			int modifiers = method.getModifiers();
-
-			if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)
-					&& method.getAnnotation(Ignore.class) == null) {
-				if (method.getAnnotation(Before.class) != null) {
-					setups.add(method);
-				}
-
-				if (method.getAnnotation(After.class) != null) {
-					setups.add(method);
-				}
-			}
-		}
-
-		System.out.println("Starting all tests.");
-
-		Object instance = testClass.newInstance();
-
-		for (Method method : testClass.getDeclaredMethods()) {
-			int modifiers = method.getModifiers();
-
-			if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)
-					&& method.getAnnotation(Ignore.class) == null) {
-				Test testAnnotation = method.getAnnotation(Test.class);
-
-				if (testAnnotation != null) {
-					for (Method setup : setups) {
-						setup.invoke(instance, (Object[]) null);
-					}
-
-					Class<?> expectedException = testAnnotation.expected();
-
-					// can't for the life of me get eclipse to be able to
-					// resolve Test.None directly
-					if (expectedException.getName().equals(
-							"org.junit.Test$None")) // why the hell doesn't this
-						// just return null?
-					{
-						expectedException = null;
-					}
-
-					try {
-						method.invoke(instance, (Object[]) null);
-					} catch (Exception e) {
-						if (expectedException == null) {
-							System.out.println(testClass.getName() + "."
-									+ method.getName() + ": "
-									+ e.getCause().getMessage());
-							new BufferedReader(new InputStreamReader(System.in))
-							.readLine();
-						} else {
-							// is there a cleaner way of saying this?
-							if (!e.getCause().getClass().equals(
-									testAnnotation.expected())) {
-								System.out.println(testClass.getName() + "."
-										+ method.getName() + ": "
-										+ "Exception expected: "
-										+ testAnnotation.expected().getName()
-										+ ", Exception thrown: "
-										+ e.getCause().getMessage());
-								new BufferedReader(new InputStreamReader(
-										System.in)).readLine();
-							}
-
-							expectedException = null;
-						}
-					}
-
-					if (expectedException != null) {
-						System.out.println(testClass.getName() + "."
-								+ method.getName() + ": "
-								+ "Expected exception not thrown: "
-								+ testAnnotation.expected().getName());
-						new BufferedReader(new InputStreamReader(System.in))
-						.readLine();
-					}
-
-					for (Method tearDown : tearDowns) {
-						tearDown.invoke(instance, (Object[]) null);
-					}
-				} // end if (testAnnotation != null)
-			} // end if (Modifier.isPublic(modifiers)...
-		} // end for (Method method : testClass.getDeclaredMethods())
-
-		System.out.println("Done with all tests.");
-	}
 
 	private static String generateString(char letter, int count) {
-		StringBuffer buffer = new StringBuffer(count);
+		StringBuilder buffer = new StringBuilder(count);
 		for (int i = 0; i < count; i++) {
 			buffer.append(letter);
 		}
