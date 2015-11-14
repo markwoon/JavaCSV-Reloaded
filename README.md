@@ -15,3 +15,4 @@ NOTE: I did not change the CsvReader class. That means it works exactly the same
 Changes in this fork:
 
 * Implement `Autocloseable`
+* Add constructor to `CsvReader` that accepts a `Path`

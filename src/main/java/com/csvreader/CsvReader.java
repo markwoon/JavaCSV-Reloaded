@@ -30,6 +30,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.HashMap;
 
@@ -156,6 +158,31 @@ public class CsvReader implements AutoCloseable {
    */
   public CsvReader(String fileName) throws FileNotFoundException {
     this(fileName, Letters.COMMA);
+  }
+
+  /**
+   * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file
+   * as the data source.
+   *
+   * @param file The path to the file to use as the data source.
+   * @param delimiter The character to use as the column delimiter.
+   * parsing the data.
+   */
+  public CsvReader(Path file, char delimiter) throws IOException {
+    if (file == null) {
+      throw new IllegalArgumentException("Parameter file can not be null.");
+    }
+
+    if (!Files.exists(file)) {
+      throw new FileNotFoundException("File " + file + " does not exist.");
+    }
+
+    //this.fileName = file.toString();
+    this.inputStream = Files.newBufferedReader(file);
+    this.userSettings.Delimiter = delimiter;
+    this.initialized = true;
+
+    isQualified = new boolean[values.length];
   }
 
   /**
