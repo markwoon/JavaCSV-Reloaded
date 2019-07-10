@@ -22,6 +22,8 @@ package com.csvreader;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -739,7 +741,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test39() throws Exception {
+	public void test39() {
 		CsvReader reader = CsvReader.parse("user_id,name\r\n1,Bruce");
 		Assert.assertTrue(reader.getSafetySwitch());
 		reader.setSafetySwitch(false);
@@ -1389,7 +1391,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test81() throws Exception {
+	public void test81() {
 		CsvReader reader = CsvReader.parse(generateString('a', 100001));
 		try {
 			reader.readRecord();
@@ -1403,7 +1405,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test82() throws Exception {
+	public void test82() {
 		StringBuilder holder = new StringBuilder(200010);
 
 		for (int i = 0; i < 100000; i++) {
@@ -1472,23 +1474,25 @@ public class AllTests {
 
 	@Test
 	public void test87() throws Exception {
-		CsvWriter writer = new CsvWriter("temp.csv");
-		writer.write("1");
-		writer.close();
+	  try {
+      CsvWriter writer = new CsvWriter("temp.csv");
+      writer.write("1");
+      writer.close();
 
-		CsvReader reader = new CsvReader("temp.csv");
-		Assert.assertTrue(reader.readRecord());
-		Assert.assertEquals("1", reader.get(0));
-		Assert.assertEquals(1, reader.getColumnCount());
-		Assert.assertEquals(0L, reader.getCurrentRecord());
-		Assert.assertFalse(reader.readRecord());
-		reader.close();
-
-		new File("temp.csv").delete();
+      CsvReader reader = new CsvReader("temp.csv");
+      Assert.assertTrue(reader.readRecord());
+      Assert.assertEquals("1", reader.get(0));
+      Assert.assertEquals(1, reader.getColumnCount());
+      Assert.assertEquals(0L, reader.getCurrentRecord());
+      Assert.assertFalse(reader.readRecord());
+      reader.close();
+    } finally {
+      Files.deleteIfExists(new File("temp.csv").toPath());
+    }
 	}
 
 	@Test
-	public void test88() throws Exception {
+	public void test88() {
 		try {
 			new CsvReader((String) null, ',', Charset
 					.forName("ISO-8859-1"));
@@ -1499,7 +1503,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test89() throws Exception {
+	public void test89() {
 		try {
 			new CsvReader("temp.csv", ',', null);
 		} catch (Exception ex) {
@@ -1509,7 +1513,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test90() throws Exception {
+	public void test90() {
 		try {
 			new CsvReader((Reader) null, ',');
 		} catch (Exception ex) {
@@ -1561,7 +1565,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test112() throws Exception {
+	public void test112() {
 		try {
 			new CsvWriter((String) null, ',', Charset
 					.forName("ISO-8859-1"));
@@ -1571,25 +1575,25 @@ public class AllTests {
 	}
 
 	@Test
-	public void test113() throws Exception {
+	public void test113() {
 		try {
-			new CsvWriter("test.csv", ',', (Charset) null);
+			new CsvWriter("test.csv", ',', null);
 		} catch (Exception ex) {
 			assertException(new IllegalArgumentException("Parameter charset can not be null."), ex);
 		}
 	}
 
 	@Test
-	public void test114() throws Exception {
+	public void test114() {
 		try {
-			new CsvWriter((Writer) null, ',');
+			new CsvWriter(null, ',');
 		} catch (Exception ex) {
 			assertException(new IllegalArgumentException("Parameter outputStream can not be null."), ex);
 		}
 	}
 
 	@Test
-	public void test115() throws Exception {
+	public void test115() {
 		try {
 			CsvWriter writer = new CsvWriter("test.csv");
 
@@ -1990,7 +1994,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test143() throws Exception {
+	public void test143() {
 		CsvReader reader = CsvReader.parse("\"" + generateString('a', 100001)
 				+ "\"");
 		try
@@ -2077,7 +2081,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test149() throws Exception {
+	public void test149() {
 		try
 		{
 			new CsvReader("C:\\somefilethatdoesntexist.csv");
@@ -2089,7 +2093,7 @@ public class AllTests {
 	}
 
 	@Test
-	public void test173() throws Exception {
+	public void test173() {
 		FailingReader fail = new FailingReader();
 
 		CsvReader reader = new CsvReader(fail);
@@ -2124,9 +2128,9 @@ public class AllTests {
 	}
 
 	private class FailingReader extends Reader {
-		public boolean DisposeCalled = false;
+		boolean DisposeCalled = false;
 
-		public FailingReader() {
+		FailingReader() {
 			super("");
 		}
 
@@ -2261,4 +2265,29 @@ public class AllTests {
 
 		Assert.assertEquals("\"a\r\nb\"\r\n", data);
 	}
+
+
+  /**
+   * Similar to {@link #test87()} except using {@link Path}.
+   */
+	@Test
+  public void test179() throws Exception {
+
+	  Path file = Files.createTempFile("test", ".csv");
+	  try {
+      CsvWriter writer = new CsvWriter(file.toString());
+      writer.write("1");
+      writer.close();
+
+      CsvReader reader = new CsvReader(file);
+      Assert.assertTrue(reader.readRecord());
+      Assert.assertEquals("1", reader.get(0));
+      Assert.assertEquals(1, reader.getColumnCount());
+      Assert.assertEquals(0L, reader.getCurrentRecord());
+      Assert.assertFalse(reader.readRecord());
+      reader.close();
+    } finally {
+      Files.deleteIfExists(file);
+    }
+  }
 }

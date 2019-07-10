@@ -16,3 +16,4 @@ Changes in this fork:
 
 * Implement `Autocloseable`
 * Add constructor to `CsvReader` that accepts a `Path`
+* Add constructor to `CsvReader` tath accepts Charset

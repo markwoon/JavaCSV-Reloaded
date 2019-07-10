@@ -151,8 +151,11 @@ public class CsvReader implements AutoCloseable {
 
   /**
    * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file
-   * as the data source.&nbsp;Uses a comma as the column delimiter and
-   * ISO-8859-1 as the {@link java.nio.charset.Charset Charset}.
+   * as the data source.
+   * <ul>
+   *   <li>Uses a comma as the column delimiter</li>
+   *   <li>Uses ISO-8859-1 as the {@link Charset Charset}</li>
+   * </ul>
    *
    * @param fileName The path to the file to use as the data source.
    */
@@ -161,14 +164,45 @@ public class CsvReader implements AutoCloseable {
   }
 
   /**
-   * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file
+   * Creates a {@link com.csvreader.CsvReader CsvReader} object using a {@link Path}
    * as the data source.
+   * <ul>
+   *   <li>Uses a comma as the column delimiter</li>
+   *   <li>Uses ISO-8859-1 as the {@link Charset Charset}</li>
+   * </ul>
+   *
+   * @param file The path to the file to use as the data source.
+   */
+  public CsvReader(Path file) throws IOException {
+    this(file, Letters.COMMA, Charset.forName("ISO-8859-1"));
+  }
+
+  /**
+   * Creates a {@link com.csvreader.CsvReader CsvReader} object using a {@link Path}
+   * as the data source.
+   * <ul>
+   *   <li>Uses ISO-8859-1 as the {@link Charset Charset}</li>
+   * </ul>
    *
    * @param file The path to the file to use as the data source.
    * @param delimiter The character to use as the column delimiter.
    * parsing the data.
    */
   public CsvReader(Path file, char delimiter) throws IOException {
+    this(file, delimiter, Charset.forName("ISO-8859-1"));
+  }
+
+  /**
+   * Creates a {@link com.csvreader.CsvReader CsvReader} object using a {@link Path}
+   * as the data source.
+   *
+   * @param file The path to the file to use as the data source.
+   * @param delimiter The character to use as the column delimiter.
+   * parsing the data.
+   * @param charset The {@link java.nio.charset.Charset Charset} to use while
+   * parsing the data.
+   */
+  public CsvReader(Path file, char delimiter, Charset charset) throws IOException {
     if (file == null) {
       throw new IllegalArgumentException("Parameter file can not be null.");
     }
@@ -177,13 +211,14 @@ public class CsvReader implements AutoCloseable {
       throw new FileNotFoundException("File " + file + " does not exist.");
     }
 
-    //this.fileName = file.toString();
-    this.inputStream = Files.newBufferedReader(file);
+    this.charset = charset;
+    this.inputStream = Files.newBufferedReader(file, charset);
     this.userSettings.Delimiter = delimiter;
     this.initialized = true;
 
     isQualified = new boolean[values.length];
   }
+
 
   /**
    * Constructs a {@link com.csvreader.CsvReader CsvReader} object using a
